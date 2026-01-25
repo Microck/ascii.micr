@@ -1,0 +1,245 @@
+
+> frontend@0.1.0 dev
+> next dev -p 4833
+
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of D:\GitHub2\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * D:\GitHub2\ascii\frontend\package-lock.json
+
+▲ Next.js 16.1.4 (Turbopack)
+- Local:         http://localhost:4833
+- Network:       http://100.104.128.8:4833
+
+✓ Starting...
+✓ Ready in 788ms
+ HEAD / 200 in 268ms (compile: 153ms, render: 115ms)
+ GET / 200 in 196ms (compile: 98ms, render: 98ms)
+✓ Compiled in 118ms
+✓ Compiled in 19ms
+✓ Compiled in 20ms
+✓ Compiled in 101ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:56:7)
+  54 |     setSelectedImage(file);
+  55 |     reset();
+> 56 |   }, [reset]);
+     |       ^
+  57 |
+  58 |   const handleGenerate = useCallback(async () => {
+  59 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+✓ Compiled in 22ms
+ GET / 500 in 166ms (compile: 52ms, render: 114ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:56:7)
+  54 |     setSelectedImage(file);
+  55 |     reset();
+> 56 |   }, [reset]);
+     |       ^
+  57 |
+  58 |   const handleGenerate = useCallback(async () => {
+  59 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+✓ Compiled in 25ms
+ GET / 500 in 146ms (compile: 42ms, render: 105ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:55:7)
+  53 |     setSelectedImage(file);
+  54 |     reset();
+> 55 |   }, [reset]);
+     |       ^
+  56 |
+  57 |   const handleGenerate = useCallback(async () => {
+  58 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+✓ Compiled in 20ms
+ GET / 500 in 149ms (compile: 43ms, render: 105ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:56:7)
+  54 |     setSelectedImage(file);
+  55 |     reset();
+> 56 |   }, [reset]);
+     |       ^
+  57 |
+  58 |   const handleGenerate = useCallback(async () => {
+  59 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+✓ Compiled in 20ms
+ GET / 500 in 136ms (compile: 45ms, render: 92ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:55:7)
+  53 |     setSelectedImage(file);
+  54 |     reset();
+> 55 |   }, [reset]);
+     |       ^
+  56 |
+  57 |   const handleGenerate = useCallback(async () => {
+  58 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+✓ Compiled in 27ms
+ GET / 500 in 165ms (compile: 51ms, render: 113ms)
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:55:7)
+  53 |     setSelectedImage(file);
+  54 |     reset();
+> 55 |   }, [reset]);
+     |       ^
+  56 |
+  57 |   const handleGenerate = useCallback(async () => {
+  58 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+ GET / 500 in 141ms (compile: 85ms, render: 56ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+✓ Compiled in 91ms
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:55:7)
+  53 |     setSelectedImage(file);
+  54 |     if (reset) reset();
+> 55 |   }, [reset]);
+     |       ^
+  56 |
+  57 |   const handleGenerate = useCallback(async () => {
+  58 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+ GET / 500 in 510ms (compile: 307ms, render: 203ms)
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:55:7)
+  53 |     setSelectedImage(file);
+  54 |     if (reset) reset();
+> 55 |   }, [reset]);
+     |       ^
+  56 |
+  57 |   const handleGenerate = useCallback(async () => {
+  58 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+ GET / 500 in 109ms (compile: 28ms, render: 80ms)
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:55:7)
+  53 |     setSelectedImage(file);
+  54 |     if (reset) reset();
+> 55 |   }, [reset]);
+     |       ^
+  56 |
+  57 |   const handleGenerate = useCallback(async () => {
+  58 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+ GET / 500 in 38ms (compile: 3ms, render: 35ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:56:7)
+  54 |     setSelectedImage(file);
+  55 |     if (reset) reset();
+> 56 |   }, [reset]);
+     |       ^
+  57 |
+  58 |   const handleGenerate = useCallback(async () => {
+  59 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+✓ Compiled in 274ms
+ GET / 500 in 1063ms (compile: 933ms, render: 130ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:56:7)
+  54 |     setSelectedImage(file);
+  55 |     if (reset) reset();
+> 56 |   }, [reset]);
+     |       ^
+  57 |
+  58 |   const handleGenerate = useCallback(async () => {
+  59 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+ GET / 500 in 42ms (compile: 3ms, render: 39ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:55:7)
+  53 |     setSelectedImage(file);
+  54 |     if (reset) reset();
+> 55 |   }, [reset]);
+     |       ^
+  56 |
+  57 |   const handleGenerate = useCallback(async () => {
+  58 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+✓ Compiled in 23ms
+ GET / 500 in 158ms (compile: 45ms, render: 113ms)
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:55:7)
+  53 |     setSelectedImage(file);
+  54 |     if (reset) reset();
+> 55 |   }, [reset]);
+     |       ^
+  56 |
+  57 |   const handleGenerate = useCallback(async () => {
+  58 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+ GET / 500 in 137ms (compile: 70ms, render: 66ms)
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:55:7)
+  53 |     setSelectedImage(file);
+  54 |     if (reset) reset();
+> 55 |   }, [reset]);
+     |       ^
+  56 |
+  57 |   const handleGenerate = useCallback(async () => {
+  58 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+ GET / 500 in 41ms (compile: 2ms, render: 38ms)
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:55:7)
+  53 |     setSelectedImage(file);
+  54 |     if (reset) reset();
+> 55 |   }, [reset]);
+     |       ^
+  56 |
+  57 |   const handleGenerate = useCallback(async () => {
+  58 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+ GET / 500 in 38ms (compile: 3ms, render: 36ms)
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:55:7)
+  53 |     setSelectedImage(file);
+  54 |     if (reset) reset();
+> 55 |   }, [reset]);
+     |       ^
+  56 |
+  57 |   const handleGenerate = useCallback(async () => {
+  58 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+ GET / 500 in 620ms (compile: 151ms, render: 469ms)
+⨯ ReferenceError: reset is not defined
+    at Home (app\page.tsx:55:7)
+  53 |     setSelectedImage(file);
+  54 |     if (reset) reset();
+> 55 |   }, [reset]);
+     |       ^
+  56 |
+  57 |   const handleGenerate = useCallback(async () => {
+  58 |     if (!selectedImage) return; {
+  digest: '2903205112'
+}
+ GET / 500 in 43ms (compile: 2ms, render: 41ms)
