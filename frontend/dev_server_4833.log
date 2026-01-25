@@ -243,3 +243,6 @@
   digest: '2903205112'
 }
  GET / 500 in 43ms (compile: 2ms, render: 41ms)
+ GET / 200 in 385ms (compile: 247ms, render: 137ms)
+ GET / 200 in 29ms (compile: 2ms, render: 27ms)
+ GET / 200 in 40ms (compile: 6ms, render: 34ms)
