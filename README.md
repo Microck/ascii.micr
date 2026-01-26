@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="frontend/favicon.png" width="100" alt="ascii.micr logo" />
+  <img src="https://github.com/user-attachments/assets/0b497c2b-6cbf-4da6-88c0-8dd02179f007" width="300" alt="ascii.micr logo" />
   
   <h1>ascii.micr</h1>
   
@@ -19,7 +19,7 @@
 
   <br />
 
-  <img src="https://ascii.micr.zone/og-preview.png" width="800" alt="application interface preview" />
+  <img src="https://github.com/user-attachments/assets/dd8d034b-8a57-40a7-b56b-bd571e2e18e6" width="800" alt="application interface preview" />
 </div>
 
 <br />
