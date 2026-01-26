@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>ASCII.MICR - Instant WebGPU ASCII Art Generator</title>
+    <meta name="description" content="Convert images to high-quality ASCII art instantly in your browser using WebGPU. No server uploads needed. Features Y2K aesthetic, gradient descent optimization, and custom themes.">
+    <meta name="keywords" content="ascii art generator, image to ascii, webgpu, y2k aesthetic, vaporwave, text art, client-side, privacy focused">
+    <meta name="author" content="ASCII.MICR">
+    <meta name="theme-color" content="#ff66b2">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ascii.micr.zone/">
+    <meta property="og:title" content="ASCII.MICR - Instant WebGPU ASCII Art Generator">
+    <meta property="og:description" content="Convert images to high-quality ASCII art instantly in your browser using WebGPU. Features Y2K aesthetic and gradient descent optimization.">
+    <meta property="og:image" content="https://ascii.micr.zone/og-preview.png">
+
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://ascii.micr.zone/">
+    <meta property="twitter:title" content="ASCII.MICR - Instant WebGPU ASCII Art Generator">
+    <meta property="twitter:description" content="Convert images to high-quality ASCII art instantly in your browser using WebGPU. Features Y2K aesthetic and gradient descent optimization.">
+    <meta property="twitter:image" content="https://ascii.micr.zone/og-preview.png">
+
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="src/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Pixelify+Sans:wght@400..700&family=Tektur:wght@400..900&family=VT323&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;700&family=Share+Tech+Mono&family=Orbitron:wght@400..900&family=Audiowide&family=Silkscreen:wght@400;700&family=Michroma&family=Syne+Mono&family=Zen+Dots&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="wrapper">
+        <header>
+            <div id="logo-area">
+                <h1>ASCII<span class="blink">.</span>MICR</h1>
+            </div>
+            <button id="about-btn">ABOUT</button>
+        </header>
+
+        <main id="main-content">
+            <!-- VIEW: DASHBOARD -->
+            <div id="dashboard-view" class="view-container">
+                <!-- LEFT COLUMN: CONTROLS & INFO -->
+                <div class="window-box" id="control-panel">
+                    <!-- CONTENT: CONTROLS -->
+                    <div id="panel-controls" class="window-content scrollable-content">
+                        <div class="control-group">
+                            <label for="image-upload">SOURCE FILE:</label>
+                            <div class="file-input-wrapper">
+                                <input type="text" id="file-path" readonly value="NO FILE SELECTED">
+                                <button id="browse-btn">BROWSE</button>
+                                <input type="file" id="real-file-input" hidden>
+                            </div>
+                        </div>
+
+                        <div id="advanced-controls">
+                            <!-- Sliders Grid -->
+                            <div class="slider-grid">
+                                <div class="control-group">
+                                    <label for="param-iterations">ITERATIONS: <span id="val-iterations">2000</span></label>
+                                    <input type="range" id="param-iterations" min="100" max="20000" step="100" value="2000">
+                                </div>
+                                <div class="control-group">
+                                    <label for="param-lr">LEARNING RATE: <span id="val-lr">0.01</span></label>
+                                    <input type="range" id="param-lr" min="0.001" max="0.1" step="0.001" value="0.01">
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="param-diversity">DIVERSITY: <span id="val-diversity">0.01</span></label>
+                                    <input type="range" id="param-diversity" min="0" max="0.1" step="0.001" value="0.01">
+                                </div>
+                                <div class="control-group">
+                                    <label for="param-row-gap">ROW GAP: <span id="val-row-gap">6</span>px</label>
+                                    <input type="range" id="param-row-gap" min="0" max="20" step="1" value="6">
+                                </div>
+
+                                <div class="control-group">
+                                    <label for="param-temp-start">TEMP START: <span id="val-temp-start">1.0</span></label>
+                                    <input type="range" id="param-temp-start" min="0.1" max="5.0" step="0.1" value="1.0">
+                                </div>
+                                <div class="control-group">
+                                    <label for="param-temp-end">TEMP END: <span id="val-temp-end">0.01</span></label>
+                                    <input type="range" id="param-temp-end" min="0.001" max="1.0" step="0.001" value="0.01">
+                                </div>
+                            </div>
+
+                            <!-- Checkboxes & Options -->
+                            <div class="control-group checkbox-group">
+                                <label class="custom-checkbox-label">
+                                    <input type="checkbox" id="param-optimize-alignment">
+                                    <span class="checkmark"></span>
+                                    OPTIMIZE ALIGNMENT
+                                </label>
+                            </div>
+                            <div class="control-group checkbox-group">
+                                <label class="custom-checkbox-label">
+                                    <input type="checkbox" id="param-dark-mode" checked>
+                                    <span class="checkmark"></span>
+                                    DARK MODE
+                                </label>
+                            </div>
+
+                            <div class="control-group">
+                                <label for="param-encoding">ENCODING:</label>
+                                <select id="param-encoding">
+                                    <option value="cp437">CP437 (Standard)</option>
+                                    <option value="ascii">ASCII (Safe)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="action-row">
+                            <button id="go-btn">EXECUTE</button>
+                        </div>
+                    </div>
+
+                    <!-- CONTENT: ABOUT INFO (Hidden by default) -->
+                    <div id="panel-about" class="window-content hidden">
+                        <div class="about-content">
+                            <h2>GRADSCII-ART (ASCII.MICR)</h2>
+                            <br>
+                            <p>Unlike standard converters that map pixel brightness to characters, this tool uses <strong>Gradient Descent</strong> to optimize character placement.</p>
+                            <br>
+                            <p>It "learns" the best ASCII representation by comparing the rendered font pixels against your source image.</p>
+                            <br>
+                            <p>Based on the original <strong>Gradscii</strong> project by <strong>Zellic</strong>.</p>
+                            <br>
+                            <p>POWERED BY: <a href="https://pytorch.org" target="_blank">PyTorch</a> & <a href="https://vitejs.dev" target="_blank">Vite</a></p>
+                            <div class="legal-links" style="margin-top: 20px; font-size: 10px;">
+                                <a href="/privacy.html">PRIVACY</a> • <a href="/terms.html">TERMS</a>
+                            </div>
+                            <br><br>
+                            <button id="back-to-dash-btn">RETURN TO DASHBOARD</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN: PREVIEWS & OUTPUT -->
+                <div id="visual-column" class="hidden">
+                    <div class="window-box hidden" id="source-preview-window">
+                        <!-- No Title for Preview -->
+                        <div class="window-content center-content">
+                            <div id="input-preview-area" class="preview-box">
+                                <span id="preview-placeholder">NO IMAGE</span>
+                                <img id="input-preview-img" class="hidden" alt="Source Preview">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="window-box output-box hidden" id="output-window">
+                        <!-- No Title for Output -->
+                        <div class="window-content">
+                            <div id="result-view-container">
+                                <pre id="ascii-output">WAITING...</pre>
+                                <img id="result-preview-img" class="hidden" alt="Result Preview">
+                                <canvas id="gpu-canvas" class="hidden"></canvas>
+                            </div>
+                            <div class="button-row">
+                                <button class="small-btn" id="toggle-view-btn">VIEW: TEXT</button>
+                                <button class="small-btn" id="copy-btn">COPY TEXT</button>
+                                <button class="small-btn" id="download-btn">SAVE PNG</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="src/js/main.js"></script>
+</body>
+</html>

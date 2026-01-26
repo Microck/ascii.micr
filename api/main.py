@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import base64
 import io
 import os
@@ -21,24 +21,26 @@ from train import (
 
 app = FastAPI(title="gradscii-art API")
 
+origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["POST", "OPTIONS"],
+    allow_headers=["Content-Type"],
 )
 
 class GenerationParams(BaseModel):
-    iterations: int = 10000
-    lr: float = 0.01
-    diversity_weight: float = 0.01
-    temp_start: float = 1.0
-    temp_end: float = 0.01
+    iterations: int = Field(10000, ge=100, le=20000)
+    lr: float = Field(0.01, ge=0.0001, le=1.0)
+    diversity_weight: float = Field(0.01, ge=0.0, le=1.0)
+    temp_start: float = Field(1.0, ge=0.1, le=10.0)
+    temp_end: float = Field(0.01, ge=0.0001, le=1.0)
     optimize_alignment: bool = False
     dark_mode: bool = False
     encoding: str = "cp437"
-    row_gap: int = 6
+    row_gap: int = Field(6, ge=0, le=50)
 
 class GenerationRequest(BaseModel):
     image: str
@@ -66,8 +68,20 @@ async def generate(request: GenerationRequest):
     image_path = os.path.join(tmp_dir, "input.png")
 
     try:
+        if len(request.image) > 10 * 1024 * 1024 * 1.33:
+            raise HTTPException(status_code=413, detail="Image too large (Max 10MB)")
+
         image_data = base64.b64decode(request.image)
         image_bytes = io.BytesIO(image_data)
+        
+        try:
+            from PIL import Image
+            img = Image.open(image_bytes)
+            img.verify()
+            image_bytes.seek(0)
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid image format")
+
         with open(image_path, "wb") as f:
             f.write(image_bytes.getbuffer().tobytes())
 

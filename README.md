@@ -1,92 +1,67 @@
-# gradscii-art
+<div align="center">
+  <img src="frontend/favicon.png" width="100" alt="ascii.micr logo" />
+  
+  <h1>ascii.micr</h1>
+  
+  <p><strong>client-side webgpu ascii art generator. gradient descent optimization. zero server uploads.</strong></p>
 
-Gradient descent ASCII art generator built with Next.js and PyTorch.
+  <p>
+    <a href="https://opensource.org/licenses/MIT">
+      <img src="https://img.shields.io/badge/license-MIT-000000.svg?style=flat-square" alt="license" />
+    </a>
+    <a href="https://developer.chrome.com/docs/web-platform/webgpu">
+      <img src="https://img.shields.io/badge/webgpu-enabled-000000.svg?style=flat-square" alt="webgpu" />
+    </a>
+    <a href="https://vitejs.dev/">
+      <img src="https://img.shields.io/badge/vite-5.0-000000.svg?style=flat-square" alt="vite" />
+    </a>
+  </p>
 
-## Live Demo
+  <br />
 
-Deployed frontend on Vercel: [View Site](https://your-app.vercel.app)
+  <img src="https://ascii.micr.zone/og-preview.png" width="800" alt="application interface preview" />
+</div>
 
-## Features
+<br />
 
-- **Image-to-ASCII conversion**: Upload any image and convert to ASCII art
-- **Gradient descent optimization**: Uses PyTorch for high-quality output
-- **Two presets**: 
-  - **Epson**: CP437 encoding with 6px row gap (retail displays)
-  - **Discord**: ASCII encoding with 0px row gap (Discord-style)
-- **Real-time preview**: Side-by-side comparison of original and ASCII
-- **Export options**: Download as PNG or copy text to clipboard
-- **Responsive design**: Works on desktop, tablet, and mobile
-- **Dark mode default**: Styled after commitmono.com
+## features
 
-## Tech Stack
+*   **instant render**: uses webgpu compute shaders for l2 distance matching.
+*   **privacy first**: 100% client-side processing. no images leave your browser.
+*   **y2k aesthetic**: custom kaomoji patterns, scrolling backgrounds, neon palette.
+*   **export ready**: copy text to clipboard or save as png.
+*   **customizable**: adjustable iterations, learning rate, and diversity weights.
 
-**Frontend**
-- Next.js 16.1.4
-- React 19.2.3
-- TypeScript 5
-- Tailwind CSS 4
-- Lucide React (icons)
+## how it works
 
-**Backend** (optional)
-- FastAPI
-- Python 3.10
-- PyTorch 2.10.0
+1.  **font atlas**: generates a texture atlas from the selected font (cp437/ascii) on the fly.
+2.  **compute shader**: runs a parallel l2 distance comparison between input pixels and font glyphs.
+3.  **optimization**: finds the best matching character for every grid cell instantly.
+4.  **rendering**: outputs directly to a canvas for preview and a text buffer for copying.
 
-## Quick Start
+## development
 
-### Local Development
+requires node.js 18+ and a webgpu-compatible browser (chrome/edge/arc).
 
 ```bash
+# clone repo
+git clone https://github.com/microck/ascii.micr.git
+
+# install dependencies
 cd frontend
 npm install
+
+# start dev server
 npm run dev
 ```
 
-Visit http://localhost:3000
+## tech stack
 
-### With Backend (Optional)
+*   **engine**: webgpu (wgsl shaders)
+*   **framework**: vite (vanilla js module)
+*   **style**: css variables, svg data uris
+*   **fonts**: silkscreen, pixelify sans, tektur
 
-Backend enables real-time generation. Without backend, app uses demo mode.
+## license
 
-```bash
-cd api
-docker build -t gradscii-api .
-docker run -p 8000:8000 --gpus all gradscii-api
-```
-
-Set environment variable:
-```
-NEXT_PUBLIC_API_URL=http://localhost:8000
-```
-
-## Deployment
-
-### Frontend (Vercel)
-
-1. Connect GitHub repo to Vercel
-2. Set environment variable: `NEXT_PUBLIC_API_URL` (optional, for backend connection)
-3. Deploy (automatic)
-
-### Backend (Docker on VPS)
-
-```bash
-docker build -t gradscii-api .
-docker run -d -p 8000:8000 --gpus all gradscii-api
-```
-
-## Parameters
-
-- **Iterations**: 1000-20000 (higher = better quality, slower)
-- **Learning Rate**: 0.001-0.1 (convergence speed)
-- **Diversity Weight**: 0.0-0.1 (character variety)
-- **Temp Start**: 0.1-5.0 (initial randomness)
-- **Temp End**: 0.001-1.0 (final precision)
-
-## License
-
-MIT
-
-## Acknowledgments
-
-- [commit-mono](https://github.com/eigilnikolajsen/commit-mono) - Programming typeface
-- [gradscii-art](https://github.com/microcon/gradscii-art) - ASCII art generation
+mit
