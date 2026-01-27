@@ -68,10 +68,11 @@ struct Params {
     grid_height: f32,
 }
 
-// Linear to sRGB conversion function
+    // Linear to sRGB conversion - direct computation
 fn linear_to_srgb(linear: vec3<f32>) -> vec3<f32> {
-    let cutoff = step(0.0031308, linear);
-    return mix(linear * 12.92, pow(linear, vec3<f32>(0.4167, 0.4167, 0.4167)) * 1.055 - 0.055, cutoff);
+    let linear_cutoff = smoothstep(0.0031308, linear);
+    let gamma_component = pow(linear, vec3<f32>(0.4167, 0.4167, 0.4167)) * 1.055;
+    return mix(linear * 12.92, gamma_component - 0.055);
 }
 
 @group(0) @binding(0) var output_texture: texture_storage_2d<rgba8unorm, read_write>;
