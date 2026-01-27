@@ -85,29 +85,41 @@ export class WebGPURenderer {
     setupResources(bitmap) {
         const width = bitmap.width;
         const height = bitmap.height;
-        
-        this.canvas.width = width;
-        this.canvas.height = height;
 
         const gridW = Math.ceil(width / this.charWidth);
         const gridH = Math.ceil(height / this.charHeight);
+        const paddedWidth = gridW * this.charWidth;
+        const paddedHeight = gridH * this.charHeight;
+
+        let sourceBitmap = bitmap;
+        if (paddedWidth !== width || paddedHeight !== height) {
+            const padCanvas = document.createElement('canvas');
+            padCanvas.width = paddedWidth;
+            padCanvas.height = paddedHeight;
+            const padCtx = padCanvas.getContext('2d');
+            padCtx.drawImage(bitmap, 0, 0, paddedWidth, paddedHeight);
+            sourceBitmap = padCanvas;
+        }
+
+        this.canvas.width = paddedWidth;
+        this.canvas.height = paddedHeight;
 
         try {
             // Input Texture (for compute shader - use rgba32float format)
             this.inputTexture = this.device.createTexture({
-                size: [width, height],
+                size: [paddedWidth, paddedHeight],
                 format: 'rgba8unorm',
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
             });
 
             this.device.queue.copyExternalImageToTexture(
-                { source: bitmap },
+                { source: sourceBitmap },
                 { texture: this.inputTexture },
-                [width, height]
+                [paddedWidth, paddedHeight]
             );
 
         this.renderTexture = this.device.createTexture({
-            size: [width, height],
+            size: [paddedWidth, paddedHeight],
             format: 'rgba8unorm',
             usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC
         });
@@ -119,7 +131,7 @@ export class WebGPURenderer {
             });
 
             const paramsData = new Float32Array([
-                width, height,
+                paddedWidth, paddedHeight,
                 this.charWidth, this.charHeight,
                 gridW, gridH
             ]);
@@ -205,6 +217,56 @@ export class WebGPURenderer {
         );
 
         this.device.queue.submit([commandEncoder.finish()]);
+    }
+
+    async exportPngDataUrl() {
+        if (!this.renderTexture) {
+            return null;
+        }
+
+        const width = this.canvas.width;
+        const height = this.canvas.height;
+        const bytesPerPixel = 4;
+        const unpaddedBytesPerRow = width * bytesPerPixel;
+        const align = 256;
+        const bytesPerRow = Math.ceil(unpaddedBytesPerRow / align) * align;
+        const bufferSize = bytesPerRow * height;
+
+        const readbackBuffer = this.device.createBuffer({
+            size: bufferSize,
+            usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ
+        });
+
+        const commandEncoder = this.device.createCommandEncoder();
+        commandEncoder.copyTextureToBuffer(
+            { texture: this.renderTexture },
+            { buffer: readbackBuffer, bytesPerRow, rowsPerImage: height },
+            [width, height]
+        );
+        this.device.queue.submit([commandEncoder.finish()]);
+
+        await readbackBuffer.mapAsync(GPUMapMode.READ);
+        const mapped = new Uint8Array(readbackBuffer.getMappedRange());
+        const pixels = new Uint8ClampedArray(width * height * bytesPerPixel);
+
+        for (let y = 0; y < height; y++) {
+            const srcOffset = y * bytesPerRow;
+            const dstOffset = y * unpaddedBytesPerRow;
+            pixels.set(mapped.subarray(srcOffset, srcOffset + unpaddedBytesPerRow), dstOffset);
+        }
+
+        readbackBuffer.unmap();
+
+        const padX = Math.max(4, this.charWidth);
+        const padY = Math.max(4, this.charHeight);
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = width + padX * 2;
+        exportCanvas.height = height + padY * 2;
+        const exportCtx = exportCanvas.getContext('2d');
+        const imageData = new ImageData(pixels, width, height);
+        exportCtx.putImageData(imageData, padX, padY);
+
+        return exportCanvas.toDataURL('image/png');
     }
 
     async getText() {

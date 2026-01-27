@@ -352,10 +352,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
     });
 
-    downloadBtn.addEventListener('click', () => {
+    downloadBtn.addEventListener('click', async () => {
+        let dataUrl = null;
+
+        if (rendererReady) {
+            renderer.render();
+            dataUrl = await renderer.exportPngDataUrl();
+        }
+
+        if (!dataUrl) {
+            dataUrl = gpuCanvas.toDataURL();
+        }
+
         const link = document.createElement('a');
         link.download = `ASCII_GPU_${Date.now()}.png`;
-        link.href = gpuCanvas.toDataURL();
+        link.href = dataUrl;
         link.click();
     });
 });
