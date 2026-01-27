@@ -68,14 +68,14 @@ struct Params {
     grid_height: f32,
 }
 
-    // Linear to sRGB conversion - direct computation
 fn linear_to_srgb(linear: vec3<f32>) -> vec3<f32> {
-    let linear_cutoff = smoothstep(0.0031308, linear);
-    let gamma_component = pow(linear, vec3<f32>(0.4167, 0.4167, 0.4167)) * 1.055;
-    return mix(linear * 12.92, gamma_component - 0.055);
+    let low = linear * 12.92;
+    let high = pow(linear, vec3<f32>(0.4167, 0.4167, 0.4167)) * 1.055 - 0.055;
+    let cutoff = linear > vec3<f32>(0.0031308);
+    return select(low, high, cutoff);
 }
 
-@group(0) @binding(0) var output_texture: texture_storage_2d<rgba8unorm, read_write>;
+@group(0) @binding(0) var output_texture: texture_storage_2d<rgba8unorm, write>;
 @group(0) @binding(1) var atlas_texture: texture_2d<f32>;
 @group(0) @binding(2) var<storage, read> char_grid: array<u32>;
 @group(0) @binding(3) var<uniform> params: Params;

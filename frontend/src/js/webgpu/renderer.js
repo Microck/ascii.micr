@@ -33,38 +33,32 @@ export class WebGPURenderer {
             throw new Error("No WebGPU adapter found.");
         }
 
-        const features = this.adapter.features;
-        const supportsRGBA32Float = features.has('float32-filterable');
-        
-        if (!supportsRGBA32Float) {
-            console.warn("Warning: rgba32float storage textures may not be fully supported on this device");
-        }
-
-        this.device = await this.adapter.requestDevice({ 
-            requiredFeatures: supportsRGBA32Float ? ['float32-filterable'] : undefined
-        });
+        this.device = await this.adapter.requestDevice();
 
         this.context = this.canvas.getContext('webgpu');
-        this.context = this.canvas.getContext('webgpu');
-        
+
         this.context.configure({
             device: this.device,
             format: 'rgba8unorm',
             alphaMode: 'premultiplied',
-            usage: GPUTextureUsage.RENDER_ATTACHMENT
+            usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_DST
         });
 
-        // Load Font Atlas
         const atlasBitmap = await this.fontAtlas.generate();
         this.createAtlasTexture(atlasBitmap);
 
         console.log("WebGPU Initialized");
     }
 
+    setSettings(settings) {
+        this.charWidth = settings.charWidth;
+        this.charHeight = settings.charHeight;
+    }
+
     createAtlasTexture(bitmap) {
         this.atlasTexture = this.device.createTexture({
             size: [bitmap.width, bitmap.height],
-            format: 'rgba32float',
+            format: 'rgba8unorm',
             usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
         });
 
@@ -92,11 +86,9 @@ export class WebGPURenderer {
         const width = bitmap.width;
         const height = bitmap.height;
         
-        // Resize canvas to match image
         this.canvas.width = width;
         this.canvas.height = height;
 
-        // Calculate grid dimensions
         const gridW = Math.ceil(width / this.charWidth);
         const gridH = Math.ceil(height / this.charHeight);
 
@@ -104,7 +96,7 @@ export class WebGPURenderer {
             // Input Texture (for compute shader - use rgba32float format)
             this.inputTexture = this.device.createTexture({
                 size: [width, height],
-                format: 'rgba32float',
+                format: 'rgba8unorm',
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
             });
 
@@ -114,7 +106,6 @@ export class WebGPURenderer {
                 [width, height]
             );
 
-        // Render Storage Texture (for compute shader output - match canvas format)
         this.renderTexture = this.device.createTexture({
             size: [width, height],
             format: 'rgba8unorm',
