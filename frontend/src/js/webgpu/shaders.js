@@ -68,6 +68,12 @@ struct Params {
     grid_height: f32,
 }
 
+// Linear to sRGB conversion function
+fn linear_to_srgb(linear: vec3<f32>) -> vec3<f32> {
+    let cutoff = step(0.0031308, linear);
+    return mix(linear * 12.92, pow(linear, vec3<f32>(0.4167, 0.4167, 0.4167)) * 1.055 - 0.055, cutoff);
+}
+
 @group(0) @binding(0) var output_texture: texture_storage_2d<rgba8unorm, read_write>;
 @group(0) @binding(1) var atlas_texture: texture_2d<f32>;
 @group(0) @binding(2) var<storage, read> char_grid: array<u32>;
@@ -104,6 +110,13 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let atlas_y = atlas_row * ch + local_y;
 
     let color = textureLoad(atlas_texture, vec2<i32>(i32(atlas_x), i32(atlas_y)), 0);
-    textureStore(output_texture, vec2<i32>(i32(x), i32(y)), color);
+    
+    // Convert from linear to sRGB for correct display
+    let srgb = vec4<f32>(
+        linear_to_srgb(color.rgb),
+        color.a
+    );
+    
+    textureStore(output_texture, vec2<i32>(i32(x), i32(y)), srgb);
 }
 `;

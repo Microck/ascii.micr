@@ -33,7 +33,18 @@ export class WebGPURenderer {
             throw new Error("No WebGPU adapter found.");
         }
 
-        this.device = await this.adapter.requestDevice();
+        const features = this.adapter.features;
+        const supportsRGBA32Float = features.has('float32-filterable');
+        
+        if (!supportsRGBA32Float) {
+            console.warn("Warning: rgba32float storage textures may not be fully supported on this device");
+        }
+
+        this.device = await this.adapter.requestDevice({ 
+            requiredFeatures: supportsRGBA32Float ? ['float32-filterable'] : undefined
+        });
+
+        this.context = this.canvas.getContext('webgpu');
         this.context = this.canvas.getContext('webgpu');
         
         this.context.configure({
@@ -51,18 +62,21 @@ export class WebGPURenderer {
     }
 
     createAtlasTexture(bitmap) {
-        // Atlas Texture (for compute shader - use rgba32float format)
         this.atlasTexture = this.device.createTexture({
             size: [bitmap.width, bitmap.height],
             format: 'rgba32float',
             usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
         });
 
-        this.device.queue.copyExternalImageToTexture(
-            { source: bitmap },
-            { texture: this.atlasTexture },
-            [bitmap.width, bitmap.height]
-        );
+        try {
+            this.device.queue.copyExternalImageToTexture(
+                { source: bitmap },
+                { texture: this.atlasTexture },
+                [bitmap.width, bitmap.height]
+            );
+        } catch (error) {
+            throw new Error(`Failed to copy font atlas to texture: ${error.message}`);
+        }
     }
 
     async loadImage(url) {
@@ -86,47 +100,51 @@ export class WebGPURenderer {
         const gridW = Math.ceil(width / this.charWidth);
         const gridH = Math.ceil(height / this.charHeight);
 
-        // Input Texture (for compute shader - use rgba32float format)
-        this.inputTexture = this.device.createTexture({
-            size: [width, height],
-            format: 'rgba32float',
-            usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
-        });
+        try {
+            // Input Texture (for compute shader - use rgba32float format)
+            this.inputTexture = this.device.createTexture({
+                size: [width, height],
+                format: 'rgba32float',
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
+            });
 
-        this.device.queue.copyExternalImageToTexture(
-            { source: bitmap },
-            { texture: this.inputTexture },
-            [width, height]
-        );
+            this.device.queue.copyExternalImageToTexture(
+                { source: bitmap },
+                { texture: this.inputTexture },
+                [width, height]
+            );
 
-        // Render Storage Texture (for compute shader output)
+        // Render Storage Texture (for compute shader output - match canvas format)
         this.renderTexture = this.device.createTexture({
             size: [width, height],
             format: 'rgba8unorm',
             usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC
         });
 
-        const gridSize = gridW * gridH * 4;
-        this.charGridBuffer = this.device.createBuffer({
-            size: gridSize,
-            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC
-        });
+            const gridSize = gridW * gridH * 4;
+            this.charGridBuffer = this.device.createBuffer({
+                size: gridSize,
+                usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC
+            });
 
-        const paramsData = new Float32Array([
-            width, height,
-            this.charWidth, this.charHeight,
-            gridW, gridH
-        ]);
+            const paramsData = new Float32Array([
+                width, height,
+                this.charWidth, this.charHeight,
+                gridW, gridH
+            ]);
 
-        this.paramsBuffer = this.device.createBuffer({
-            size: paramsData.byteLength,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-            mappedAtCreation: true
-        });
-        new Float32Array(this.paramsBuffer.getMappedRange()).set(paramsData);
-        this.paramsBuffer.unmap();
+            this.paramsBuffer = this.device.createBuffer({
+                size: paramsData.byteLength,
+                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+                mappedAtCreation: true
+            });
+            new Float32Array(this.paramsBuffer.getMappedRange()).set(paramsData);
+            this.paramsBuffer.unmap();
 
-        this.createPipelines();
+            this.createPipelines();
+        } catch (error) {
+            throw new Error(`Failed to setup GPU resources: ${error.message}`);
+        }
     }
 
     createPipelines() {
