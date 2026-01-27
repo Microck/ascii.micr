@@ -10,10 +10,11 @@ export class WebGPURenderer {
         
         this.fontAtlas = new FontAtlas();
         this.atlasTexture = null;
-        
+
         this.inputTexture = null;
         this.charGridBuffer = null;
         this.paramsBuffer = null;
+        this.renderTexture = null;
         
         this.solverPipeline = null;
         this.renderPipeline = null;
@@ -37,9 +38,9 @@ export class WebGPURenderer {
         
         this.context.configure({
             device: this.device,
-            format: navigator.gpu.getPreferredCanvasFormat(),
+            format: 'rgba8unorm',
             alphaMode: 'premultiplied',
-            usage: GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.STORAGE_BINDING
+            usage: GPUTextureUsage.RENDER_ATTACHMENT
         });
 
         // Load Font Atlas
@@ -50,9 +51,10 @@ export class WebGPURenderer {
     }
 
     createAtlasTexture(bitmap) {
+        // Atlas Texture (for compute shader - use rgba32float format)
         this.atlasTexture = this.device.createTexture({
             size: [bitmap.width, bitmap.height],
-            format: 'rgba8unorm',
+            format: 'rgba32float',
             usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
         });
 
@@ -84,10 +86,10 @@ export class WebGPURenderer {
         const gridW = Math.ceil(width / this.charWidth);
         const gridH = Math.ceil(height / this.charHeight);
 
-        // Input Texture
+        // Input Texture (for compute shader - use rgba32float format)
         this.inputTexture = this.device.createTexture({
             size: [width, height],
-            format: 'rgba8unorm',
+            format: 'rgba32float',
             usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT
         });
 
@@ -97,10 +99,17 @@ export class WebGPURenderer {
             [width, height]
         );
 
-        const gridSize = gridW * gridH * 4; 
+        // Render Storage Texture (for compute shader output)
+        this.renderTexture = this.device.createTexture({
+            size: [width, height],
+            format: 'rgba8unorm',
+            usage: GPUTextureUsage.STORAGE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC
+        });
+
+        const gridSize = gridW * gridH * 4;
         this.charGridBuffer = this.device.createBuffer({
             size: gridSize,
-            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST | GPUBufferUsage.COPY_SRC
         });
 
         const paramsData = new Float32Array([
@@ -108,7 +117,7 @@ export class WebGPURenderer {
             this.charWidth, this.charHeight,
             gridW, gridH
         ]);
-        
+
         this.paramsBuffer = this.device.createBuffer({
             size: paramsData.byteLength,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
@@ -143,6 +152,20 @@ export class WebGPURenderer {
             layout: 'auto',
             compute: { module: renderModule, entryPoint: 'main' }
         });
+
+        this.createRenderBindGroup();
+    }
+
+    createRenderBindGroup() {
+        this.renderBindGroup = this.device.createBindGroup({
+            layout: this.renderPipeline.getBindGroupLayout(0),
+            entries: [
+                { binding: 0, resource: this.renderTexture.createView() },
+                { binding: 1, resource: this.atlasTexture.createView() },
+                { binding: 2, resource: { buffer: this.charGridBuffer } },
+                { binding: 3, resource: { buffer: this.paramsBuffer } }
+            ]
+        });
     }
 
     render() {
@@ -153,7 +176,7 @@ export class WebGPURenderer {
         const solverPass = commandEncoder.beginComputePass();
         solverPass.setPipeline(this.solverPipeline);
         solverPass.setBindGroup(0, this.solverBindGroup);
-        
+
         const gridW = Math.ceil(this.canvas.width / this.charWidth);
         const gridH = Math.ceil(this.canvas.height / this.charHeight);
         solverPass.dispatchWorkgroups(Math.ceil(gridW / 16), Math.ceil(gridH / 16));
@@ -161,21 +184,16 @@ export class WebGPURenderer {
 
         const renderPass = commandEncoder.beginComputePass();
         renderPass.setPipeline(this.renderPipeline);
-        
-        const canvasTexture = this.context.getCurrentTexture();
-        const renderBindGroup = this.device.createBindGroup({
-            layout: this.renderPipeline.getBindGroupLayout(0),
-            entries: [
-                { binding: 0, resource: canvasTexture.createView() },
-                { binding: 1, resource: this.atlasTexture.createView() },
-                { binding: 2, resource: { buffer: this.charGridBuffer } },
-                { binding: 3, resource: { buffer: this.paramsBuffer } }
-            ]
-        });
-
-        renderPass.setBindGroup(0, renderBindGroup);
+        renderPass.setBindGroup(0, this.renderBindGroup);
         renderPass.dispatchWorkgroups(Math.ceil(this.canvas.width / 16), Math.ceil(this.canvas.height / 16));
         renderPass.end();
+
+        const canvasTexture = this.context.getCurrentTexture();
+        commandEncoder.copyTextureToTexture(
+            { texture: this.renderTexture },
+            { texture: canvasTexture },
+            [this.canvas.width, this.canvas.height]
+        );
 
         this.device.queue.submit([commandEncoder.finish()]);
     }

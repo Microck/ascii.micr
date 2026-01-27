@@ -1,0 +1,10 @@
+# Python backend - deployed elsewhere
+api/
+temp_gradscii/
+*.py
+requirements*.txt
+*.ipynb
+
+# Build artifacts
+.next/
+*.log

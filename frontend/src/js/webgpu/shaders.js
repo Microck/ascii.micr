@@ -30,8 +30,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     var best_diff = 999999.0;
     var best_char = 0u;
 
-    // Loop through 256 characters
-    for (var c = 32u; c < 127u; c++) { // Optimization: Just ASCII 32-126 for now
+    for (var c = 32u; c < 127u; c++) {
         var current_diff = 0.0;
         
         let atlas_col = c % 16u;
@@ -39,12 +38,11 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         let atlas_x = atlas_col * cw;
         let atlas_y = atlas_row * ch;
 
-        // Compare pixel block
-        for (var y = 0u; y < ch; y++) {
-            for (var x = 0u; x < cw; x++) {
-                let in_color = textureLoad(input_texture, vec2<i32>(i32(start_x + x), i32(start_y + y)), 0).r;
-                let atlas_color = textureLoad(atlas_texture, vec2<i32>(i32(atlas_x + x), i32(atlas_y + y)), 0).r;
-                let d = in_color - atlas_color;
+        for (var py = 0u; py < ch; py++) {
+            for (var px = 0u; px < cw; px++) {
+                let in_color = textureLoad(input_texture, vec2<i32>(i32(start_x + px), i32(start_y + py)), 0);
+                let atlas_color = textureLoad(atlas_texture, vec2<i32>(i32(atlas_x + px), i32(atlas_y + py)), 0);
+                let d = in_color.r - atlas_color.r;
                 current_diff += d * d;
             }
         }
@@ -70,7 +68,7 @@ struct Params {
     grid_height: f32,
 }
 
-@group(0) @binding(0) var output_texture: texture_storage_2d<rgba8unorm, write>;
+@group(0) @binding(0) var output_texture: texture_storage_2d<rgba8unorm, read_write>;
 @group(0) @binding(1) var atlas_texture: texture_2d<f32>;
 @group(0) @binding(2) var<storage, read> char_grid: array<u32>;
 @group(0) @binding(3) var<uniform> params: Params;
@@ -86,7 +84,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
 
     let cw = u32(params.char_width);
     let ch = u32(params.char_height);
-    
+
     let grid_x = x / cw;
     let grid_y = y / ch;
 
