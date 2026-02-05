@@ -1,0 +1,25 @@
+# ASCII Art Generator - Python Dependencies
+# ===========================================
+#
+# Core dependencies from gradscii-art:
+# - PyTorch for gradient descent optimization
+# - Pillow for image processing
+# - NumPy for numerical operations
+# - tqdm for progress bars
+#
+# GUI dependencies:
+# - Streamlit for web interface
+# - watchdog for file watching (streamlit dependency)
+
+# Core engine dependencies
+torch>=2.0.0
+pillow>=10.0.0
+numpy>=1.24.0
+tqdm>=4.65.0
+
+# Web interface dependencies
+streamlit>=1.28.0
+watchdog>=3.0.0
+
+# Additional utilities
+setuptools>=65.0

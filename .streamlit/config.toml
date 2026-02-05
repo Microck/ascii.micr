@@ -1,0 +1,15 @@
+[theme]
+# Y2K Vaporwave Theme
+primaryColor = "#ff66b2"
+backgroundColor = "#ffccff"
+secondaryBackgroundColor = "#fff0f5"
+textColor = "#660066"
+font = "monospace"
+
+[server]
+headless = true
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false
