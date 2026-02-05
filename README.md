@@ -3,7 +3,7 @@
   
   <h1>ascii.micr</h1>
   
-  <p><strong>local python ascii art generator. gradient descent optimization. 100% offline.</strong></p>
+  <p><strong>local python ASCII art generator using gradient descent optimization. 100% offline.</strong></p>
 
   <p>
     <a href="https://opensource.org/licenses/AGPL-3.0">
